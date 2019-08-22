@@ -28,7 +28,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   List<Player> _players = [];
   List<TextEditingController> _controllers = [];
   LinkedHashMap _playerRows = new LinkedHashMap<Player, List<Row>>();
@@ -92,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Row> buildRows(Player player) {
     List<Row> rows = [];
     int index = 0;
-    for (var point in player.points) {
+    for(; index < player.points.length; index++) {
       rows.add(Row(
         children: <Widget>[
           Container(
@@ -100,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: MediaQuery.of(context).size.width / _players.length,
               child: TextField(
                 keyboardType: TextInputType.number,
-                controller: _createController(player, index++),
+                controller: _createController(player, index),
               )),
         ],
       ));
@@ -125,9 +124,6 @@ class _MyHomePageState extends State<MyHomePage> {
       textEditingController.text = player.points[index].toString();
     }
     textEditingController.addListener(() {
-      print(
-          "New value for ${player.name} at $index is ${textEditingController.text}");
-      print(player.points.length);
       if (textEditingController.text.trim() != '') {
         int newValue = int.parse(textEditingController.text);
         if (player.points.length <= index) {
@@ -143,20 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _addColumnForPlayer(Player player) {
     setState(() {});
-  }
-
-  void _checkIsEmpty(dynamic value) {
-    if (value == null || value == '') {
-      print("value is empty");
-    } else {
-      print("value is not empty but: " + value);
-    }
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
   }
 
   @override
