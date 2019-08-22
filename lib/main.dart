@@ -113,7 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
             child: TextField(
               controller: _createController(player, index++),
               keyboardType: TextInputType.number,
-              onChanged: _checkIsEmpty,
             )),
       ],
     ));
@@ -122,6 +121,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   TextEditingController _createController(Player player, int index) {
     TextEditingController textEditingController = new TextEditingController();
+    if (player.points.length > index && player.points[index] != null) {
+      textEditingController.text = player.points[index].toString();
+    }
     textEditingController.addListener(() {
       print(
           "New value for ${player.name} at $index is ${textEditingController.text}");
@@ -140,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _addColumnForPlayer(Player player) {
-    // TODO implement
+    setState(() {});
   }
 
   void _checkIsEmpty(dynamic value) {
@@ -165,8 +167,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Container(
           width: MediaQuery.of(context).size.width,
-          child: Row(
-            children: buildHeadingColumns(),
+          child: SingleChildScrollView(
+            child: Row(
+              children: buildHeadingColumns(),
+            ),
           ),
         ));
   }
