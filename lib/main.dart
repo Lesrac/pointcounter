@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:pointcounter/player.dart';
-import 'package:screen/screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Points in the game'),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -32,19 +31,10 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Player> _players = [];
   List<TextEditingController> _controllers = [];
   LinkedHashMap _playerRows = new LinkedHashMap<Player, List<Row>>();
-  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    Screen.keepOn(true);
-//    _focusNode.addListener(() {
-//      print("Focus node listener added");
-//      print("has focus: ${_focusNode.hasFocus}");
-//      if(!_focusNode.hasFocus) {
-//        _setState("focus changed");
-//      }
-//    });
     _initPlayers();
   }
 
@@ -72,26 +62,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ));
       rows.addAll(buildRows(player));
-      rows.add(Row(
-        children: <Widget>[
-          Text(
-            _countPoints(player),
-            style: Theme.of(context).textTheme.subhead,
-          )
-        ],
-      ));
       _playerRows[player] = rows.toList();
       columns.add(Column(
         children: _playerRows[player], //[listViewBuild(player)],
       ));
     }
     return columns;
-  }
-
-  String _countPoints(Player player) {
-    var sum = 0;
-    player.points.forEach((point) => sum += point);
-    return sum.toString();
   }
 
   Widget listViewBuild(Player player) {
@@ -115,16 +91,13 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Row> buildRows(Player player) {
     List<Row> rows = [];
     int index = 0;
-    for (; index < player.points.length; index++) {
+    for(; index < player.points.length; index++) {
       rows.add(Row(
         children: <Widget>[
           Container(
               padding: EdgeInsets.all(2.0),
               width: MediaQuery.of(context).size.width / _players.length,
               child: TextField(
-                onSubmitted: (sub) => _setState("Submitted"),
-                onEditingComplete: () => _setState("Editing Complete"),
-                focusNode: _focusNode,
                 keyboardType: TextInputType.number,
                 controller: _createController(player, index),
               )),
@@ -155,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
         int newValue = int.parse(textEditingController.text);
         if (player.points.length <= index) {
           player.points.add(newValue);
-          // _addColumnForPlayer(player);
+          _addColumnForPlayer(player);
         } else {
           player.points[index] = newValue;
         }
@@ -164,18 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return textEditingController;
   }
 
-  int getMaxPlayerColumns() {
-    int maxColumns = 0;
-    _players.forEach((player) {
-      if (player.points.length - 1 > maxColumns) {
-        maxColumns = player.points.length - 1;
-      }
-    });
-    return maxColumns;
-  }
-
-  void _setState(String text) {
-    print(text);
+  void _addColumnForPlayer(Player player) {
     setState(() {});
   }
 
