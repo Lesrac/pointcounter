@@ -32,20 +32,21 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Player> _players = [];
   List<TextEditingController> _controllers = [];
   LinkedHashMap _playerRows = new LinkedHashMap<Player, List<Row>>();
-  final FocusNode _focusNode = FocusNode();
+  List<FocusNode> _focusNodes = [];
 
   @override
   void initState() {
     super.initState();
     Screen.keepOn(true);
-//    _focusNode.addListener(() {
-//      print("Focus node listener added");
-//      print("has focus: ${_focusNode.hasFocus}");
-//      if(!_focusNode.hasFocus) {
-//        _setState("focus changed");
-//      }
-//    });
     _initPlayers();
+  }
+
+  @override
+  void dispose() {
+    this._focusNodes.forEach((node) {
+      node.dispose();
+    });
+    super.dispose();
   }
 
   void _initPlayers() {
@@ -118,31 +119,39 @@ class _MyHomePageState extends State<MyHomePage> {
     for (; index < player.points.length; index++) {
       rows.add(Row(
         children: <Widget>[
-          Container(
-              padding: EdgeInsets.all(2.0),
-              width: MediaQuery.of(context).size.width / _players.length,
-              child: TextField(
-                onSubmitted: (sub) => _setState("Submitted"),
-                onEditingComplete: () => _setState("Editing Complete"),
-                focusNode: _focusNode,
-                keyboardType: TextInputType.number,
-                controller: _createController(player, index),
-              )),
+          _createBaseContainer(player, index),
         ],
       ));
     }
     rows.add(Row(
       children: <Widget>[
-        Container(
-            padding: EdgeInsets.all(2.0),
-            width: MediaQuery.of(context).size.width / _players.length,
-            child: TextField(
-              controller: _createController(player, index++),
-              keyboardType: TextInputType.number,
-            )),
+        _createBaseContainer(player, index++),
       ],
     ));
     return rows;
+  }
+
+  Container _createBaseContainer(Player player, int index) {
+    return Container(
+        padding: EdgeInsets.all(2.0),
+        width: MediaQuery.of(context).size.width / _players.length,
+        child: TextField(
+          controller: _createController(player, index),
+          keyboardType: TextInputType.number,
+          focusNode: _createFocusNode(),
+        ));
+  }
+
+  FocusNode _createFocusNode() {
+    // TODO: Doc says to do this in initState, but I need a dynamic amount of focusNodes depending on existing textFields
+    FocusNode focusNode = new FocusNode();
+    focusNode.addListener(() {
+      if (!focusNode.hasFocus) {
+        _setState();
+      }
+    });
+    _focusNodes.add(focusNode);
+    return focusNode;
   }
 
   TextEditingController _createController(Player player, int index) {
@@ -155,7 +164,6 @@ class _MyHomePageState extends State<MyHomePage> {
         int newValue = int.parse(textEditingController.text);
         if (player.points.length <= index) {
           player.points.add(newValue);
-          // _addColumnForPlayer(player);
         } else {
           player.points[index] = newValue;
         }
@@ -174,8 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return maxColumns;
   }
 
-  void _setState(String text) {
-    print(text);
+  void _setState() {
     setState(() {});
   }
 
