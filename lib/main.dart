@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:pointcounter/player.dart';
 import 'package:screen/screen.dart';
 
+import 'textfield_focus.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -32,21 +34,12 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Player> _players = [];
   List<TextEditingController> _controllers = [];
   LinkedHashMap _playerRows = new LinkedHashMap<Player, List<Row>>();
-  List<FocusNode> _focusNodes = [];
 
   @override
   void initState() {
     super.initState();
     Screen.keepOn(true);
     _initPlayers();
-  }
-
-  @override
-  void dispose() {
-    this._focusNodes.forEach((node) {
-      node.dispose();
-    });
-    super.dispose();
   }
 
   void _initPlayers() {
@@ -131,45 +124,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return rows;
   }
 
-  Container _createBaseContainer(Player player, int index) {
-    return Container(
-        padding: EdgeInsets.all(2.0),
-        width: MediaQuery.of(context).size.width / _players.length,
-        child: TextField(
-          controller: _createController(player, index),
-          keyboardType: TextInputType.number,
-          focusNode: _createFocusNode(),
-        ));
-  }
-
-  FocusNode _createFocusNode() {
-    // TODO: Doc says to do this in initState, but I need a dynamic amount of focusNodes depending on existing textFields
-    FocusNode focusNode = new FocusNode();
-    focusNode.addListener(() {
-      if (!focusNode.hasFocus) {
-        _setState();
-      }
-    });
-    _focusNodes.add(focusNode);
-    return focusNode;
-  }
-
-  TextEditingController _createController(Player player, int index) {
-    TextEditingController textEditingController = new TextEditingController();
-    if (player.points.length > index && player.points[index] != null) {
-      textEditingController.text = player.points[index].toString();
-    }
-    textEditingController.addListener(() {
-      if (textEditingController.text.trim() != '') {
-        int newValue = int.parse(textEditingController.text);
-        if (player.points.length <= index) {
-          player.points.add(newValue);
-        } else {
-          player.points[index] = newValue;
-        }
-      }
-    });
-    return textEditingController;
+  Widget _createBaseContainer(Player player, int index) {
+    return TextfieldFocus(
+        player: player,
+        players: _players.length,
+        index: index,
+        func: _setState);
   }
 
   int getMaxPlayerColumns() {
